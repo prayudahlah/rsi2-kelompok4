@@ -33,6 +33,15 @@ class Account(SQLModel, table=True):
 
     logs: list["Log"] = Relationship(back_populates="account")
 
+class Registration(SQLModel, table=True):
+    __tablename__ = "registration"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    event_id: int = Field(foreign_key="event.id")
+
+    user: "User" = Relationship(back_populates="registrations")
+    event: "Event" = Relationship(back_populates="registrations")
 
 class Event(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
