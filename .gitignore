@@ -3,6 +3,7 @@
 .env.*
 __pycache__
 postgres_data
+.idea
 
 # Whitelist
 !.env.example
