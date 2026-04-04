@@ -1,8 +1,15 @@
 from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 from datetime import datetime
-from typing import Optional
 from pydantic import EmailStr
 from sqlalchemy import func
+
+
+class Role(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(max_length=255, unique=True, index=True)
+
+    accounts: List["Account"] = Relationship(back_populates="role")
 
 
 class Account(SQLModel, table=True):
@@ -24,4 +31,71 @@ class Account(SQLModel, table=True):
     user: "User" = Relationship(back_populates="accounts")
     role: "Role" = Relationship(back_populates="accounts")
 
-    logs: list["Log"] = Relationship(back_populates="account")
+    logs: list["Logs"] = Relationship(back_populates="account")
+
+
+class Registration(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    event_id: int = Field(foreign_key="event.id")
+
+    user: "User" = Relationship(back_populates="registrations")
+    event: "Event" = Relationship(back_populates="registrations")
+
+
+class Event(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    name: str = Field(max_length=255, nullable=False)
+    description: str = Field(max_length=255, nullable=False)
+    quota: int = Field(nullable=False)
+    started_at: datetime = Field(nullable=False)
+    ended_at: datetime = Field(nullable=False)
+    created_at: datetime = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
+    )
+    update_at: datetime = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
+    )
+
+    registration: "Registration" = Relationship(back_populates="event")
+
+
+class Logs(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    account_id: int = Field(foreign_key="account_id")
+    created_at: datetime = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
+    )
+    action: str = Field(max_length=15, nullable=False)
+    ip_address: str = Field(max_length=25, nullable=False)
+    user_agent: str = Field(max_length=50, nullable=False)
+    entity: str = Field(max_length=50, nullable=False)
+    entity_id: int = Field(nullable=False)
+
+    account: "Account" = Relationship(back_populates="logs")
+
+
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    first_name: str = Field(max_length=255, nullable=False)
+    last_name: str = Field(max_length=255, nullable=False)
+    whatsapp: str = Field(max_length=30, nullable=False)
+    created_at: datetime = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
+    )
+    update_at: datetime = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"server_default": func.now()},
+        nullable=False,
+    )
+
+    registration: "Registration" = Relationship(back_populates="user")
+    account: "Account" = Relationship(back_populates="user")
