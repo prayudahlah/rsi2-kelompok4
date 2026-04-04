@@ -23,4 +23,4 @@ class Event(SQLModel, table=True):
     )
 
 
-registration: "Registration" = Relationship(back_populates="event")
+    registration: "Registration" = Relationship(back_populates="event")
