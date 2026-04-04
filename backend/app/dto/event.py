@@ -22,4 +22,3 @@ class EventReturn(BaseModel):
     quota: int
     started_at: datetime
     ended_at: datetime
-
