@@ -1,22 +1,15 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from pydantic import EmailStr
 from sqlalchemy import func
 
-class Role(SQLModel, table=True):
-    __tablename__ = "role"
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(max_length=255, unique=True, index=True)
-
-    accounts: List["Account"] = Relationship(back_populates="role")
 
 class Role(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(max_length=255, unique=True, index=True)
 
-    accounts: List["Account"] = Relationship(back_populates="role")
+    accounts: list["Account"] = Relationship(back_populates="role")
 
 
 class Account(SQLModel, table=True):
@@ -38,7 +31,7 @@ class Account(SQLModel, table=True):
     user: "User" = Relationship(back_populates="accounts")
     role: "Role" = Relationship(back_populates="accounts")
 
-    logs: list["Logs"] = Relationship(back_populates="account")
+    logs: list["Log"] = Relationship(back_populates="account")
 
 
 class Registration(SQLModel, table=True):
@@ -62,18 +55,18 @@ class Event(SQLModel, table=True):
         sa_column_kwargs={"server_default": func.now()},
         nullable=False,
     )
-    update_at: datetime = Field(
+    updated_at: datetime = Field(
         default_factory=datetime.now,
-        sa_column_kwargs={"server_default": func.now()},
+        sa_column_kwargs={"onupdate": func.now(), "server_default": func.now()},
         nullable=False,
     )
 
-    registration: "Registration" = Relationship(back_populates="event")
+    registrations: list["Registration"] = Relationship(back_populates="event")
 
 
-class Logs(SQLModel, table=True):
+class Log(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
-    account_id: int = Field(foreign_key="account_id")
+    account_id: int = Field(foreign_key="account.id")
     created_at: datetime = Field(
         default_factory=datetime.now,
         sa_column_kwargs={"server_default": func.now()},
@@ -83,7 +76,7 @@ class Logs(SQLModel, table=True):
     ip_address: str = Field(max_length=25, nullable=False)
     user_agent: str = Field(max_length=50, nullable=False)
     entity: str = Field(max_length=50, nullable=False)
-    entity_id: int = Field(nullable=False)
+    entity_id: int = Field(nullable=True)
 
     account: "Account" = Relationship(back_populates="logs")
 
@@ -98,11 +91,11 @@ class User(SQLModel, table=True):
         sa_column_kwargs={"server_default": func.now()},
         nullable=False,
     )
-    update_at: datetime = Field(
+    updated_at: datetime = Field(
         default_factory=datetime.now,
-        sa_column_kwargs={"server_default": func.now()},
+        sa_column_kwargs={"onupdate": func.now(), "server_default": func.now()},
         nullable=False,
     )
 
-    registration: "Registration" = Relationship(back_populates="user")
-    account: "Account" = Relationship(back_populates="user")
+    registrations: list["Registration"] = Relationship(back_populates="user")
+    accounts: list["Account"] = Relationship(back_populates="user")
