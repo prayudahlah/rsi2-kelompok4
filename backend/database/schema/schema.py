@@ -1,11 +1,11 @@
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Relationship, false, func, table
+from sqlmodel import SQLModel, Field, Relationship, func
 from typing import Optional
 
 
 class Event(SQLModel, table=True):
 
-    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+    id: Optional[int]= Field(default=None, primary_key=True, nullable=False)
     name: str = Field(max_length=255, nullable=False)
     description: str = Field(max_length=255, nullable=False)
     quota: int = Field(nullable=False)
