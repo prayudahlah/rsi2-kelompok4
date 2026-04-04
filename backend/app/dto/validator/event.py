@@ -12,7 +12,7 @@ class EventCreated(BaseModel):
     @field_validator("quota")
     def validate_quota(cls, v):
         if v <= 0:
-            raise ValueError("Quota evet harus lebih dari 0")
+            raise ValueError("Quota event harus lebih dari 0")
         return v
 
 
@@ -22,3 +22,4 @@ class EventReturn(BaseModel):
     quota: int
     started_at: datetime
     ended_at: datetime
+
