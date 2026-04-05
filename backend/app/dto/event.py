@@ -1,8 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ValidationInfo, field_validator
 
 
-class EventCreated(BaseModel):
+class EventCreate(BaseModel):
     name: str
     description: str
     quota: int
@@ -15,8 +15,15 @@ class EventCreated(BaseModel):
             raise ValueError("Quota event harus lebih dari 0")
         return v
 
+    @field_validator("ended_at")
+    def validate_timeventend(cls, v, info: ValidationInfo):
+        started_at = info.data.get("started_at")
+        if started_at and v <= started_at:
+            raise ValueError("waktu berakhir event harus lebih dari waktu mulai")
+        return v
 
-class EventReturn(BaseModel):
+
+class EventResponse(BaseModel):
     id: str
     description: str
     quota: int
