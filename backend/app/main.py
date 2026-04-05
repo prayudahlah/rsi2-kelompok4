@@ -2,12 +2,14 @@ from fastapi import FastAPI
 from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from app.routes import role
 from app.routes import account
 
 
 app = FastAPI()
 
 
+app.include_router(role.router, prefix="/api")
 app.include_router(account.router, prefix="/api")
 
 
