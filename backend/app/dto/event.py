@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, ValidationInfo, field_validator
 
 
@@ -29,3 +30,11 @@ class EventResponse(BaseModel):
     quota: int
     started_at: datetime
     ended_at: datetime
+
+
+class UpdateEvent(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    quota: Optional[int]
+    started_at: Optional[datetime]
+    ended_at: Optional[datetime]
