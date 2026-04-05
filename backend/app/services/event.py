@@ -56,4 +56,3 @@ class EventService:
 
         self.repo.delete(db_item)
         return {"message": "Event deleted"}
-
