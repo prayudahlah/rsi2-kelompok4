@@ -31,7 +31,7 @@ def create(data: RegistrationCreate, controller: RegistrationController = Depend
     return controller.create(data)
 
 
-@router.patch("/{id}", response_model=RegistrationResponse)
+@router.put("/{id}", response_model=RegistrationResponse)
 def update(
     id: int,
     data: RegistrationUpdate,
