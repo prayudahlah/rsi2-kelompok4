@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class CreateEvent(BaseModel):
+class EventCreate(BaseModel):
     name: str
     description: str
     quota: int

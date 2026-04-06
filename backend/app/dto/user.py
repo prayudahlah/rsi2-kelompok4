@@ -1,25 +1,23 @@
-from pydantic import BaseModel
+from sqlmodel import SQLModel
 from datetime import datetime
-from typing import Optional 
+from typing import Optional
 
 
-class UserCreate(BaseModel):
+class UserBase(SQLModel):
     first_name: str
     last_name: str
     whatsapp: str
 
-class UserUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    whatsapp: Optional[str] = None
 
-class UserResponse(BaseModel):
+class UserCreate(UserBase):
+    pass
+
+
+class UserResponse(UserBase):
     id: int
-    first_name: str
-    last_name: str
-    whatsapp: str
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+

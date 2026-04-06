@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.database.connection import get_session
 from app.controllers.event import EventController
-from app.dto.event import CreateEvent, UpdateEvent, EventResponse
+from app.dto.event import EventCreate, UpdateEvent, EventResponse
 
 router = APIRouter(prefix="/events", tags=["Event"])
 
@@ -23,7 +23,7 @@ def get_by_id(id: int, controller: EventController = Depends(get_controller)):
 
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
-def create(data: CreateEvent, controller: EventController = Depends(get_controller)):
+def create(data: EventCreate, controller: EventController = Depends(get_controller)):
     return controller.create(data)
 
 

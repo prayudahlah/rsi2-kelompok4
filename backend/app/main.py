@@ -6,7 +6,7 @@ from app.routes import registration
 from app.routes import role
 from app.routes import event
 from app.routes import account
-from app.controllers import user
+from app.routes import user
 
 
 app = FastAPI()

@@ -19,3 +19,4 @@ class RoleResponse(RoleBase):
 
     class Config:
         from_attributes = True
+

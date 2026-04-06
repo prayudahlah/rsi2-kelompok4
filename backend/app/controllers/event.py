@@ -1,7 +1,7 @@
 from sqlmodel import Session
 
 from app.services.event import EventService
-from app.dto.event import CreateEvent, UpdateEvent
+from app.dto.event import EventCreate, UpdateEvent
 
 
 class EventController:
@@ -14,7 +14,7 @@ class EventController:
     def get_by_id(self, id: int):
         return self.service.get_by_id(id)
 
-    def create(self, data: CreateEvent):
+    def create(self, data: EventCreate):
         return self.service.create(data)
 
     def update(self, id: int, data: UpdateEvent):

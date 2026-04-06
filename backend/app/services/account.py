@@ -15,7 +15,7 @@ class AccountService:
     def get_by_id(self, id: int):
         db_item = self.repo.get_by_id(id)
         if not db_item:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail="Account not found")
         return AccountResponse.model_validate(db_item)
 
     def create(self, data: AccountCreate):

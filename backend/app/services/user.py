@@ -1,40 +1,42 @@
 from app.repositories.user import UserRepository
-from app.database.schema.schema import User 
+from app.dto.user import UserCreate, UserResponse
+from sqlmodel import Session
+from fastapi import HTTPException
 
 
 class UserService:
+    def __init__(self, session: Session):
+        self.repo = UserRepository(session)
 
-    def __init__(self):
-        self.repo = UserRepository()
+    def get_all(self):
+        db_items = self.repo.get_all()
+        return [UserResponse.model_validate(item) for item in db_items]
 
-    def create_user(self, db, user_data):
-        user = User(**user_data.dict())
-        return self.repo.create(db, user)
+    def get_by_id(self, id: int):
+        db_item = self.repo.get_by_id(id)
+        if not db_item:
+            raise HTTPException(status_code=404, detail="User not found")
+        return UserResponse.model_validate(db_item)
 
-    def get_users(self, db):
-        return self.repo.get_all(db)
+    def create(self, data: UserCreate):
+        item_dict = data.model_dump()
+        db_item = self.repo.create(item_dict)
 
-    def get_user(self, db, user_id):
-        user = self.repo.get_by_id(db, user_id)
-        if not user:
-            raise ValueError("User not found")
-        return user
+        return UserResponse.model_validate(db_item)
 
-    def update_user(self, db, user_id, user_data):
-        user = self.repo.get_by_id(db, user_id)
-        if not user:
-            raise ValueError("User not found")
+    def update(self, id: int, data: UserCreate):
+        update_dict = data.model_dump()
 
-        user.first_name = user_data.first_name
-        user.last_name = user_data.last_name
-        user.whatsapp = user_data.whatsapp
+        db_item = self.repo.update(id, update_dict)
+        if not db_item:
+            raise HTTPException(status_code=404, detail="User not found")
 
-        return self.repo.update(db, user)
+        return UserResponse.model_validate(db_item)
 
-    def delete_user(self, db, user_id):
-        user = self.repo.get_by_id(db, user_id)
-        if not user:
-            raise ValueError("User not found")
+    def delete(self, id: int):
+        deleted = self.repo.delete(id)
 
-        self.repo.delete(db, user)
-        return {"message": "User deleted"}
+        if not deleted:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return True

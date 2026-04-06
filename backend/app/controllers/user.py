@@ -1,39 +1,23 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
-from app.database.connection import get_session
+from app.dto.user import UserCreate
 from app.services.user import UserService
-from app.dto.user import UserCreate, UserResponse, UserUpdate
-
-router = APIRouter(prefix="/users", tags=["User"])
-
-service = UserService()
+from sqlmodel import Session
 
 
-@router.post("/", response_model=UserResponse)
-def create_user(user: UserCreate, db: Session = Depends(get_session)):
-    return service.create_user(db, user)
+class UserController:
+    def __init__(self, session: Session):
+        self.service = UserService(session)
 
+    def get_all(self):
+        return self.service.get_all()
 
-@router.get("/", response_model=list[UserResponse])
-def get_users(db: Session = Depends(get_session)):
-    return service.get_users(db)
+    def get_by_id(self, id: int):
+        return self.service.get_by_id(id)
 
+    def create(self, data: UserCreate):
+        return self.service.create(data)
 
-@router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_session)):
-    try:
-        return service.get_user(db, user_id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="User not found")
+    def update(self, id: int, data: UserCreate):
+        return self.service.update(id, data)
 
-
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_session)):
-    return service.update_user(db, user_id, user)
-
-@router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_session)):
-    try:
-        return service.delete_user(db, user_id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="User not found")
+    def delete(self, id: int):
+        self.service.delete(id)

@@ -1,5 +1,5 @@
 from app.repositories.event import EventRepository
-from app.dto.event import CreateEvent, EventResponse, UpdateEvent
+from app.dto.event import EventCreate, EventResponse, UpdateEvent
 from sqlmodel import Session
 from fastapi import HTTPException
 
@@ -19,7 +19,7 @@ class EventService:
 
         return EventResponse.model_validate(db_item)
 
-    def create(self, data: CreateEvent):
+    def create(self, data: EventCreate):
         if data.ended_at <= data.started_at:
             raise HTTPException(
                 status_code=400, detail="ended_at harus setelah started_at"
