@@ -13,6 +13,7 @@ Kelompok 4A:
 ```
 https://lab-student-l0224008-yudafihan-001.fatisda.alyza.dev/docs
 ```
+Note: Kemungkinan link akan kadaluarsa pada tanggal 13 April 2026
 
 ## API URL
 
@@ -21,3 +22,4 @@ API dapat diakses pada link berikut:
 ```
 https://lab-student-l0224008-yudafihan-001.fatisda.alyza.dev
 ```
+Note: Kemungkinan link akan kadaluarsa pada tanggal 13 April 2026
