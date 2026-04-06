@@ -1,24 +1,31 @@
 from datetime import datetime
-from pydantic import BaseModel, field_validator
+from typing import Optional
+from pydantic import BaseModel
 
 
-class EventCreated(BaseModel):
+class CreateEvent(BaseModel):
     name: str
     description: str
     quota: int
     started_at: datetime
     ended_at: datetime
 
-    @field_validator("quota")
-    def validate_quota(cls, v):
-        if v <= 0:
-            raise ValueError("Quota event harus lebih dari 0")
-        return v
 
-
-class EventReturn(BaseModel):
-    id: str
+class EventResponse(BaseModel):
+    id: int
+    name: str
     description: str
     quota: int
     started_at: datetime
     ended_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UpdateEvent(BaseModel):
+    name: Optional[str]
+    description: Optional[str]
+    quota: Optional[int]
+    started_at: Optional[datetime]
+    ended_at: Optional[datetime]
