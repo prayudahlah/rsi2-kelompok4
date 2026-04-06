@@ -27,7 +27,7 @@ def create(data: RoleCreate, controller: RoleController = Depends(get_controller
     return controller.create(data)
 
 
-@router.patch("/{id}", response_model=RoleResponse)
+@router.put("/{id}", response_model=RoleResponse)
 def update(id: int, data: RoleUpdate, controller: RoleController = Depends(get_controller)):
     return controller.update(id, data)
 
