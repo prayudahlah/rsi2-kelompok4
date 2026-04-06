@@ -4,6 +4,7 @@ services:
     image: fastapi:latest
     container_name: fastapi-rsi2
     restart: unless-stopped
+    network_mode: "host"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
     ports:
@@ -21,7 +22,7 @@ services:
             - '*.log'
 
         - action: rebuild
-          path: ./backend/requirements.txt
+          path: ./requirements.txt
 
         - action: rebuild
           path: ./backend/pyproject.toml
