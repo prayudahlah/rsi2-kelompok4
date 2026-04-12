@@ -10,7 +10,7 @@ from app.database.schema.schema import Account
 
 SECRET_KEY = "key-rahasia-67"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 
 security = HTTPBearer()
 
@@ -18,7 +18,9 @@ security = HTTPBearer()
 def create_token(user_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     return jwt.encode(
-        {"sub": str(user_id), "exp": expire}, SECRET_KEY, algorithm=ALGORITHM
+        {"sub": str(user_id), "exp": expire},
+        key=SECRET_KEY,
+        algorithm=ALGORITHM,
     )
 
 
@@ -36,7 +38,7 @@ def get_current_user(
 
         account_id = int(account_id_str)
 
-    except (JWTError, ValueError):
+    except JWTError, ValueError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
     account = session.get(Account, account_id)
