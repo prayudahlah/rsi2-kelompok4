@@ -18,7 +18,7 @@ class Account(SQLModel, table=True):
     role_id: int = Field(foreign_key="role.id")
     email: EmailStr = Field(unique=True)
     username: str = Field(max_length=16)
-    password: str
+    hashed_password: str
 
     created_at: datetime = Field(
         default_factory=datetime.now, sa_column_kwargs={"server_default": func.now()}
@@ -98,4 +98,4 @@ class User(SQLModel, table=True):
     )
 
     registrations: list["Registration"] = Relationship(back_populates="user")
-    accounts: list["Account"] = Relationship(back_populates="user")
+    accounts: "Account" = Relationship(back_populates="user")

@@ -1,8 +1,8 @@
 """ddl schema
 
-Revision ID: fc5543c7e107
+Revision ID: 08ecb9deabbe
 Revises: 
-Create Date: 2026-04-04 19:19:56.509674
+Create Date: 2026-04-12 09:59:55.333874
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fc5543c7e107'
+revision: str = '08ecb9deabbe'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -54,7 +54,7 @@ def upgrade() -> None:
     sa.Column('role_id', sa.Integer(), nullable=False),
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('username', sqlmodel.sql.sqltypes.AutoString(length=16), nullable=False),
-    sa.Column('password', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('hashed_password', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
