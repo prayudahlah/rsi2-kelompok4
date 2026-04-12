@@ -1,22 +1,15 @@
-from fastapi import APIRouter, Depends
 from sqlmodel import Session
-
-from app.database.connection import get_session
-from app.dto.auth import AccountLogin, AccountRegister, TokenResponse
+from app.dto.auth import AccountLogin, AccountRegister
 from app.services.auth import AuthService
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
 
+class AuthController:
+    def __init__(self, session: Session):
+        self.service = AuthService(session)
 
-def get_service(session: Session = Depends(get_session)):
-    return AuthService(session)
+    def register(self, data: AccountRegister):
+        return self.service.register(data)
 
+    def login(self, data: AccountLogin):
+        return self.service.login(data)
 
-@router.post("/register", response_model=TokenResponse)
-def register(data: AccountRegister, service: AuthService = Depends(get_service)):
-    return service.register(data)
-
-
-@router.post("/login", response_model=TokenResponse)
-def login(data: AccountLogin, service: AuthService = Depends(get_service)):
-    return service.login(data)

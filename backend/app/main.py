@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -7,7 +8,7 @@ from app.routes import role
 from app.routes import event
 from app.routes import account
 from app.routes import user
-from app.controllers.auth import router as auth_router
+from app.routes import auth
 
 app = FastAPI()
 
@@ -17,12 +18,17 @@ app.include_router(registration.router, prefix="/api")
 app.include_router(account.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(event.router, prefix="/api")
-app.include_router(auth_router, prefix="/api") 
+app.include_router(auth.router, prefix="/api")
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "message": "service is running"}
+    return {"status": "healthy", "message": "milik kelompok 4A :)"}
+
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/health")
 
 
 # Exception Handlers
