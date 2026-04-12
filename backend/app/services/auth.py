@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.dto.auth import AccountLogin, AccountRegister, TokenResponse
 from app.utils.security.hash import verify_password, hash_password
-from app.utils.security.jwt import create_access_token
+from app.utils.security.jwt import create_token
 from app.repositories.auth import AuthRepository
 
 
@@ -23,15 +23,16 @@ class AuthService:
         if not account.id:
             raise HTTPException(status_code=500, detail="Invalid account ID")
 
-        token = create_access_token({"sub": str(account.id)})
+        token = create_token(account.id)
 
         return TokenResponse(access_token=token, account_id=account.id)
 
     def register(self, data: AccountRegister):
         data.password = hash_password(data.password)
         try:
-            self.repo.create(data)
+            new_account = self.repo.create(data)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        return self.login(AccountLogin(email=data.email, password=data.password))
+        token = create_token(new_account.id)  # type: ignore
+        return TokenResponse(access_token=token, account_id=new_account.id)  # type: ignore

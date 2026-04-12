@@ -12,3 +12,4 @@ class AuthController:
 
     def login(self, data: AccountLogin):
         return self.service.login(data)
+
