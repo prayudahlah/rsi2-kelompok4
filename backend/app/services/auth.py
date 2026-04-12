@@ -23,9 +23,11 @@ class AuthService:
         if not account.id:
             raise HTTPException(status_code=500, detail="Invalid account ID")
 
-        token = create_token(account.id)
+        token = create_token(user_id=account.id)
 
-        return TokenResponse(access_token=token, account_id=account.id)
+        return TokenResponse(
+            access_token=token, account_id=account.id, role=account.role.name
+        )
 
     def register(self, data: AccountRegister):
         data.password = hash_password(data.password)
@@ -34,5 +36,9 @@ class AuthService:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        token = create_token(new_account.id)  # type: ignore
-        return TokenResponse(access_token=token, account_id=new_account.id)  # type: ignore
+        token = create_token(user_id=new_account.id)  # type: ignore
+        return TokenResponse(
+            access_token=token,
+            account_id=new_account.id,  # type: ignore
+            role=new_account.role.name,
+        )

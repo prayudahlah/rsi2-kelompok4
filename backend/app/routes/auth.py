@@ -28,4 +28,8 @@ def login(data: AccountLogin, controller: AuthController = Depends(get_controlle
 
 @router.get("/me")
 def get_me(current_user: Account = Depends(get_current_user)):
-    return {"id": current_user.id, "username": current_user.username}
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "role": current_user.role.name,
+    }
