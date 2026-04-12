@@ -34,6 +34,7 @@ class TokenResponse(SQLModel):
     access_token: str
     token_type: str = "bearer"
     account_id: int
+    role: str
 
     class Config:
         from_attribute = True

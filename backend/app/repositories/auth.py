@@ -8,7 +8,11 @@ class AuthRepository:
         self.session = session
 
     def get_by_email(self, email: str):
-        return self.session.exec(select(Account).where(Account.email == email)).first()
+        account = self.session.exec(
+            select(Account).where(Account.email == email)
+        ).first()
+
+        return account
 
     def create(self, data: AccountRegister):
         # Check dupe email
@@ -18,7 +22,7 @@ class AuthRepository:
         if existing_email:
             raise ValueError("Email already registered")
 
-        #  Get role id
+        # Get role id
         role = self.session.exec(
             select(Role).where(Role.name == data.role_name)
         ).first()
