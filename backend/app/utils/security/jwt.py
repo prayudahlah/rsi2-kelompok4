@@ -36,7 +36,7 @@ def get_current_user(
 
         account_id = int(account_id_str)
 
-    except JWTError, ValueError:
+    except (JWTError, ValueError):
         raise HTTPException(status_code=401, detail="Invalid token")
 
     account = session.get(Account, account_id)
