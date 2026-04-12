@@ -6,9 +6,9 @@ class AuthRequest(BaseModel):
     password: str
 
 
-class TokenRespons(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
     class Config:
-        from_atribute = True
+        from_attribute = True
