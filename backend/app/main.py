@@ -7,7 +7,7 @@ from app.routes import role
 from app.routes import event
 from app.routes import account
 from app.routes import user
-
+from app.controllers.auth import router as auth_router
 
 app = FastAPI()
 
@@ -17,6 +17,7 @@ app.include_router(registration.router, prefix="/api")
 app.include_router(account.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(event.router, prefix="/api")
+app.include_router(auth_router, prefix="/api") 
 
 
 @app.get("/health")
