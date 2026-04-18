@@ -40,7 +40,7 @@ def get_by_id(
 )
 def create(
     data: RegistrationCreate,
-    current_user: Account = Depends(require_admin),
+    current_user: Account = Depends(require_user),
     controller: RegistrationController = Depends(get_controller),
 ):
     return controller.create(data)
@@ -64,4 +64,3 @@ def delete(
 ):
     controller.delete(id)
     return
-
