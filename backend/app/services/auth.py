@@ -14,12 +14,11 @@ class AuthService:
     def login(self, data: AccountLogin):
         account = self.repo.get_by_email(data.email)
 
-        if not account:
-            raise HTTPException(status_code=404, detail="Account not found")
-
-        if not verify_password(data.password, account.hashed_password):
-            raise HTTPException(status_code=401, detail="Wrong password")
-
+        if not account or not verify_password(data.password, account.hashed_password):
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid email or password",
+            )
         if not account.id:
             raise HTTPException(status_code=500, detail="Invalid account ID")
 
