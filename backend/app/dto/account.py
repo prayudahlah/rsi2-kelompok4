@@ -11,7 +11,7 @@ class AccountBase(SQLModel):
 
 
 class AccountCreate(AccountBase):
-    password: str
+    hashed_password: str
     pass
 
 
