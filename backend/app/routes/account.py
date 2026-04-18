@@ -40,7 +40,7 @@ def create(
     return controller.create(data)
 
 
-@router.put("/{item_id}", response_model=AccountResponse)
+@router.put("/{id}", response_model=AccountResponse)
 def update(
     id: int,
     data: AccountCreate,
@@ -50,11 +50,10 @@ def update(
     return controller.update(id, data)
 
 
-@router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete(
     id: int,
     current_user: Account = Depends(require_admin),
     controller: AccountController = Depends(get_controller),
 ):
     return controller.delete(id)
-
