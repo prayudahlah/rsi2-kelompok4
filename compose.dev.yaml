@@ -61,7 +61,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://fastapi:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
     develop:
       watch:
         - action: sync
@@ -70,6 +70,18 @@ services:
           ignore:
             - node_modules/
             - .next/
+        - action: sync
+          path: ./frontend/components
+          target: /app/components
+          ignore:
+            - node_modules/
+            - .next/
+        - action: sync
+          path: ./frontend/public
+          target: /app/public
+        - action: sync
+          path: ./frontend/lib
+          target: /app/lib
         - action: rebuild
           path: ./frontend/package.json
         - action: rebuild
