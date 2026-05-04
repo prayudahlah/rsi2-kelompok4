@@ -1,65 +1,134 @@
-import Image from "next/image";
+'use client';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import Navbar from '@/components/Navbar';
+import { useDarkMode } from '@/components/useDarkMode';
 
+
+// Hook counter animasi
+function useCountUp(target: number, duration = 1200, active = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setCount(0);
+      return;
+    }
+    let startTime: number | null = null;
+    const step = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, active]);
+  return count;
+}
+
+// Komponen Utama
 export default function Home() {
+  const { darkMode, toggleDarkMode } = useDarkMode(true);
+
+  const countMembers = useCountUp(4, 1000, true);
+  const countGroup = useCountUp(1, 800, true);
+
+  // Warna teks light mode (kontras tinggi)
+  const lightTextColor = '#1e0a3c';      // ungu sangat gelap untuk judul
+  const lightSecondaryColor = '#4a2a6e'; // ungu gelap untuk deskripsi
+  const lightPurpleAccent = '#8b5cf6';   // ungu terang untuk aksen (purple-500)
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{ color: darkMode ? undefined : lightTextColor }}
+    >
+      {/* BACKGROUND */}
+      {darkMode ? (
+        <div className="fixed inset-0 -z-20 bg-gradient-to-br from-[#120426] via-[#1d0a3a] to-[#06000b]" />
+      ) : (
+        <div
+          className="fixed inset-0 -z-20"
+          style={{
+            background: 'linear-gradient(135deg, #ffffff, #f3f0ff, #e9d5ff)',          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+      )}
+
+      {/* CENTER GLOW */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div
+          className="absolute w-[800px] h-[800px] blur-[200px]"
+          style={{
+            background: darkMode ? '#b46bff' : '#c4b5fd',
+            opacity: darkMode ? 0.16 : 0.15,
+          }}
+        />
+      </div>
+
+      {/* NEBULA */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute w-[600px] h-[600px] bg-purple-300 opacity-[0.08] blur-[180px] top-[-100px] left-[-120px]" />
+        <div className="absolute w-[500px] h-[500px] bg-purple-200 opacity-[0.08] blur-[160px] bottom-[-100px] right-[-120px]" />
+      </div>
+
+      {/* NAVBAR */}
+      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+
+      {/* MAIN */}
+      <main className="flex items-center justify-center min-h-[80vh] px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-2xl"
+        >
+          <h1
+            className="text-4xl md:text-6xl font-bold leading-tight"
+            style={{ color: darkMode ? '#ffffff' : lightTextColor }}
+          >
+            Welcome to Our Team <br />
+            <span style={{ color: darkMode ? '#c084fc' : lightPurpleAccent }}>Website</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4" style={{ color: darkMode ? '#d1d5db' : lightSecondaryColor }}>
+            Klik tombol untuk melihat anggota kelompok
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <div className="mt-8 flex justify-center gap-12">
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: darkMode ? '#c084fc' : '#6d28d9' }}>
+                {countMembers}
+              </div>
+              <div className="text-xs mt-0.5" style={{ color: darkMode ? '#9ca3af' : lightSecondaryColor }}>
+                People
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: darkMode ? '#c084fc' : '#6d28d9' }}>
+                {countGroup}
+              </div>
+              <div className="text-xs mt-0.5" style={{ color: darkMode ? '#9ca3af' : '#6b21a8' }}>
+                Vision
+              </div>
+            </div>
+          </div>
+          <Link
+            href="/about"
+            className="mt-8 inline-flex px-8 py-3 rounded-full bg-purple-600 hover:bg-purple-700 transition shadow-lg hover:scale-110 hover:shadow-purple-500/40"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            Kelompok 4 →
+          </Link>
+        </motion.div>
       </main>
+
+      <footer
+        className="text-center py-6 border-t relative z-10"
+        style={{
+          color: darkMode ? '#9ca3af' : '#5b21b6',
+          borderColor: darkMode ? 'rgba(255,255,255,0.1)' : '#c4b5fd',
+        }}
+      >
+          RSI Praktikum - Kelompok4
+      </footer>
+
     </div>
   );
 }
