@@ -21,6 +21,8 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/app /app/app
 COPY --from=builder /bin/uv /bin/uv
+COPY  ./migrations /app/migrations
+COPY  ./alembic.ini /app/alembic.ini
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
