@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
-    container_name: postgres-rsi2
+    container_name: postgres-rsi-praktikum
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     environment:
@@ -20,7 +20,7 @@ services:
   fastapi:
     build: ./backend
     image: fastapi:latest
-    container_name: fastapi-rsi2
+    container_name: fastapi-rsi-praktikum
     restart: unless-stopped
     depends_on:
       postgres:
