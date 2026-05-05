@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     networks:
       - api
     healthcheck:
@@ -30,47 +30,9 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
     ports:
-      - "80:8000"
+      - "8000:8000"
     networks:
       - api
-    develop:
-      watch:
-        - action: sync
-          path: ./backend/app
-          target: /app/app
-          ignore:
-            - __pycache__/
-            - '*.pyc'
-            - .pytest_cache/
-            - tests/
-            - '*.log'
-
-        - action: rebuild
-          path: ./backend/requirements.txt
-
-        - action: rebuild
-          path: ./backend/pyproject.toml
-
-        - action: rebuild
-          path: ./backend/uv.lock
-
-        - action: rebuild
-          path: ./backend/Dockerfile
-
-        - action: sync
-          path: ./backend/.env
-          target: /app/.env
-
-        - action: sync
-          path: ./backend/alembic.ini
-          target: /app/alembic.ini
-
-        - action: sync
-          path: ./backend/migrations
-          target: /app/migrations
-          ignore:
-            - __pycache__/
-            - '*.pyc'
 
 networks:
   api:
