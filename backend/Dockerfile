@@ -21,12 +21,18 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/app /app/app
 COPY --from=builder /bin/uv /bin/uv
-COPY  ./migrations /app/migrations
-COPY  ./alembic.ini /app/alembic.ini
+COPY ./migrations /app/migrations
+COPY ./alembic.ini /app/alembic.ini
+
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN apk add --no-cache postgresql-client
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
