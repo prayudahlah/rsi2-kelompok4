@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     container_name: postgres-rsi-praktikum
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres-data-rsi-praktikum:/var/lib/postgresql/data
     ports:
       - "5433:5432"
     environment:
@@ -115,3 +115,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres-data-rsi-praktikum:
