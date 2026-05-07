@@ -5,9 +5,11 @@ export type LoginPayload = {
   password: string;
 };
 
-export type LoginResponse = {
-  access_token?: string;
-  token?: string;
+export type TokenResponse = {
+  access_token: string;
+  token_type?: string;
+  account_id: number;
+  role: string;
 };
 
 export type MeResponse = {
@@ -16,8 +18,25 @@ export type MeResponse = {
   role: string;
 };
 
-export function login(payload: LoginPayload): Promise<LoginResponse> {
-  return request<LoginResponse>('/auth/login', {
+export type RegisterPayload = {
+  email: string;
+  username: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  whatsapp: string;
+  role_name?: string;
+};
+
+export function login(payload: LoginPayload): Promise<TokenResponse> {
+  return request<TokenResponse>('/auth/login', {
+    method: 'POST',
+    body: payload,
+  });
+}
+
+export function register(payload: RegisterPayload): Promise<TokenResponse> {
+  return request<TokenResponse>('/auth/register', {
     method: 'POST',
     body: payload,
   });
