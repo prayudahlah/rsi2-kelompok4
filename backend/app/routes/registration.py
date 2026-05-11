@@ -5,6 +5,7 @@ from app.database.connection import get_session
 from app.controllers.registration import RegistrationController
 from app.dto.registration import (
     RegistrationCreate,
+    RegistrationCreateRequest,
     RegistrationResponse,
     RegistrationUpdate,
 )
@@ -39,11 +40,12 @@ def get_by_id(
     "/", response_model=RegistrationResponse, status_code=status.HTTP_201_CREATED
 )
 def create(
-    data: RegistrationCreate,
+    data: RegistrationCreateRequest,
     current_user: Account = Depends(require_user),
     controller: RegistrationController = Depends(get_controller),
 ):
-    return controller.create(data)
+    payload = RegistrationCreate(user_id=current_user.user_id, event_id=data.event_id)
+    return controller.create(payload)
 
 
 @router.put("/{id}", response_model=RegistrationResponse)

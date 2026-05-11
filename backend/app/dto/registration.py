@@ -11,6 +11,10 @@ class RegistrationCreate(RegistrationBase):
     pass
 
 
+class RegistrationCreateRequest(SQLModel):
+    event_id: int
+
+
 class RegistrationUpdate(SQLModel):
     user_id: Optional[int] = None
     event_id: Optional[int] = None

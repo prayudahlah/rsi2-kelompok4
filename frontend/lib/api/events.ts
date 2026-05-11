@@ -44,7 +44,7 @@ export function deleteEvent(id: number): Promise<void> {
 }
 
 export function registerEvent(eventId: number): Promise<void> {
-  return request<void>('/events/register', {
+  return request<void>('/registrations/', {
     method: 'POST',
     body: { event_id: eventId },
   });
