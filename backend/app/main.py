@@ -38,12 +38,12 @@ app.add_middleware(
 )
 
 
-app.include_router(role.router, prefix="/api")
-app.include_router(registration.router, prefix="/api")
-app.include_router(account.router, prefix="/api")
-app.include_router(user.router, prefix="/api")
-app.include_router(event.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
+app.include_router(role.router)
+app.include_router(registration.router)
+app.include_router(account.router)
+app.include_router(user.router)
+app.include_router(event.router)
+app.include_router(auth.router)
 
 
 @app.get("/health")
@@ -53,7 +53,7 @@ async def health_check():
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/health")
+    return RedirectResponse(url="/api/health")
 
 
 # Exception Handlers
