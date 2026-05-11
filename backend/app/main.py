@@ -13,9 +13,25 @@ from app.routes import auth
 
 app = FastAPI()
 
+
+@app.middleware("http")
+async def strip_api_prefix(request: Request, call_next):
+    path = request.url.path
+    if path.startswith("/api/"):
+        request.scope["path"] = path[4:]
+        request.scope["root_path"] = "/api"
+    elif path == "/api":
+        request.scope["path"] = "/"
+        request.scope["root_path"] = "/api"
+    return await call_next(request)
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://rsi-praktikum.prayudahlah.dev",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
