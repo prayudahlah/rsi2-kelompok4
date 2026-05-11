@@ -76,7 +76,8 @@ function MemberModal({
 }
 
 export default function AboutPage() {
-  const { darkMode, toggleDarkMode } = useDarkMode(true);
+  const { darkMode, toggleDarkMode, isMounted } = useDarkMode(true);
+  const resolvedDarkMode = isMounted ? darkMode : false;
   const [selected, setSelected] = useState<(typeof anggotaKelompok)[0] | null>(null);
 
   const lightTextColor = '#1e0a3c';
@@ -84,8 +85,8 @@ export default function AboutPage() {
   const lightPurpleAccent = '#8b5cf6';
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ color: darkMode ? undefined : lightTextColor }}>
-      {darkMode ? (
+    <div className="min-h-screen relative overflow-hidden" style={{ color: resolvedDarkMode ? undefined : lightTextColor }}>
+      {resolvedDarkMode ? (
         <div className="fixed inset-0 -z-20 bg-gradient-to-br from-[#120426] via-[#1d0a3a] to-[#06000b]" />
       ) : (
         <div
@@ -98,8 +99,8 @@ export default function AboutPage() {
         <div
           className="absolute w-[800px] h-[800px] blur-[200px]"
           style={{
-            background: darkMode ? '#b46bff' : '#c4b5fd',
-            opacity: darkMode ? 0.16 : 0.15,
+            background: resolvedDarkMode ? '#b46bff' : '#c4b5fd',
+            opacity: resolvedDarkMode ? 0.16 : 0.15,
           }}
         />
       </div>
@@ -109,7 +110,7 @@ export default function AboutPage() {
         <div className="absolute w-[500px] h-[500px] bg-purple-200 opacity-[0.08] blur-[160px] bottom-[-100px] right-[-120px]" />
       </div>
 
-      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} isMounted={isMounted} />
 
       <main className="flex items-center justify-center min-h-[80vh] px-4 relative z-10">
         <motion.div
@@ -120,7 +121,7 @@ export default function AboutPage() {
         >
           <h2
             className="text-3xl font-bold text-center mb-12"
-            style={{ color: darkMode ? '#c084fc' : lightTextColor }}
+            style={{ color: resolvedDarkMode ? '#c084fc' : lightTextColor }}
           >
             Anggota Kelompok
           </h2>
@@ -134,7 +135,7 @@ export default function AboutPage() {
                 whileHover={{ scale: 1.08, y: -10 }}
                 onClick={() => setSelected(m)}
                 className={`p-6 rounded-xl backdrop-blur-xl border text-center transition cursor-pointer
-                ${darkMode
+                ${resolvedDarkMode
                   ? i % 2 === 0
                     ? 'bg-gradient-to-br from-purple-500/10 to-transparent border-purple-400/20'
                     : 'bg-gradient-to-br from-white/10 to-transparent border-white/10'
@@ -147,15 +148,15 @@ export default function AboutPage() {
                   whileHover={{ scale: 1.1 }}
                   className="w-32 h-32 rounded-full mx-auto mb-5 border-4 border-purple-400 shadow-lg shadow-purple-500/40 object-cover"
                 />
-                <h3 className="text-lg font-semibold" style={{ color: darkMode ? '#ffffff' : lightTextColor }}>
+                <h3 className="text-lg font-semibold" style={{ color: resolvedDarkMode ? '#ffffff' : lightTextColor }}>
                   {m.nama}
                 </h3>
-                <p style={{ color: darkMode ? '#c084fc' : lightPurpleAccent }} className="font-medium">
+                <p style={{ color: resolvedDarkMode ? '#c084fc' : lightPurpleAccent }} className="font-medium">
                   {m.nim}
                 </p>
                 <p
                   className="text-[11px] mt-2"
-                  style={{ color: darkMode ? '#c084fc80' : '#7c3aed' }}
+                  style={{ color: resolvedDarkMode ? '#c084fc80' : '#7c3aed' }}
                 >
                   Klik untuk detail →
                 </p>
@@ -166,7 +167,7 @@ export default function AboutPage() {
             <Link
               href="/"
               className="text-gray-400 hover:text-white transition"
-              style={{ color: darkMode ? undefined : lightSecondaryColor }}
+              style={{ color: resolvedDarkMode ? undefined : lightSecondaryColor }}
             >
               ← Kembali ke Beranda
             </Link>
@@ -177,8 +178,8 @@ export default function AboutPage() {
       <footer
         className="text-center py-6 border-t relative z-10"
         style={{
-          color: darkMode ? '#9ca3af' : '#5b21b6',
-          borderColor: darkMode ? 'rgba(255,255,255,0.1)' : '#c4b5fd',
+          color: resolvedDarkMode ? '#9ca3af' : '#5b21b6',
+          borderColor: resolvedDarkMode ? 'rgba(255,255,255,0.1)' : '#c4b5fd',
         }}
       >
         RSI Praktikum - Kelompok4
@@ -186,7 +187,7 @@ export default function AboutPage() {
 
       <AnimatePresence>
         {selected && (
-          <MemberModal member={selected} onClose={() => setSelected(null)} darkMode={darkMode} />
+          <MemberModal member={selected} onClose={() => setSelected(null)} darkMode={resolvedDarkMode} />
         )}
       </AnimatePresence>
     </div>
