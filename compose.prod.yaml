@@ -32,6 +32,18 @@ services:
     networks:
       - internal
 
+  nextjs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    image: nextjs:latest
+    container_name: nextjs-rsi-praktikum
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_API_URL=https://rsi-praktikum.prayudahlah.dev/api
+    ports:
+      - "3000:3000"
+
 networks:
   internal:
     driver: bridge
