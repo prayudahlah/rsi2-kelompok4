@@ -8,18 +8,63 @@ Kelompok 4A:
 
 ---
 
+Aplikasi manajemen event untuk kegiatan praktikum RSI. Admin dapat membuat, mengedit, dan menghapus event. User dapat mendaftar ke event yang tersedia dan melihat riwayat pendaftaran.
+
+## Tech Stack
+
+- **Frontend:** Next.js 16 + Bun + Tailwind CSS
+- **Backend:** FastAPI + SQLModel
+- **Database:** PostgreSQL 17
+- **Container:** Docker + Docker Compose
+
+## Aplikasi (Frontend)
+
+```
+https://rsi-praktikum.prayudahlah.dev
+```
+
 ## API Documentation
 
 ```
-https://lab-student-l0224008-yudafihan-001.fatisda.alyza.dev/docs
+https://rsi-praktikum.prayudahlah.dev/api/docs
 ```
-Note: Kemungkinan link akan kadaluarsa pada tanggal 27 April 2026
 
 ## API URL
 
-API dapat diakses pada link berikut:
+```
+https://rsi-praktikum.prayudahlah.dev/api
+```
 
+## Development
+
+```bash
+docker compose -f compose.dev.yaml up --watch --build
 ```
-https://lab-student-l0224008-yudafihan-001.fatisda.alyza.dev
+
+## Production
+
+```bash
+docker compose -f compose.prod.yaml up -d --build
 ```
-Note: Kemungkinan link akan kadaluarsa pada tanggal 27 April 2026
+
+## Environment Variables (`.env`)
+
+| Variable | Description |
+|---|---|
+| `POSTGRES_USER` | PostgreSQL user |
+| `POSTGRES_PASSWORD` | PostgreSQL password |
+| `POSTGRES_DB` | Database name |
+| `POSTGRES_HOST` | Database host (default: postgres) |
+| `POSTGRES_PORT` | Database port (default: 5432) |
+| `DATABASE_URL` | Auto-built from above vars |
+
+## Frontend Routes
+
+| Path | Description |
+|---|---|
+| `/` | Home |
+| `/login` | Login |
+| `/register` | Register |
+| `/event-management` | Kelola event (admin) |
+| `/event-registration` | Pendaftaran events |
+| `/about` | About page |
