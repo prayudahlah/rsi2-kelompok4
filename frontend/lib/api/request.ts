@@ -26,6 +26,13 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
+  if (response.status === 401) {
+    const { clearToken } = await import('@/lib/auth/token');
+    clearToken();
+    const message = await response.text();
+    throw new Error(message || 'Sesi telah berakhir. Silakan login kembali.');
+  }
+
   if (!response.ok) {
     const message = await response.text();
     throw new Error(message || `Request failed (${response.status})`);

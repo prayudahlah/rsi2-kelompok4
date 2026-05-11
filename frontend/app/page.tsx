@@ -28,7 +28,8 @@ function useCountUp(target: number, duration = 1200, active = false) {
 
 // Komponen Utama
 export default function Home() {
-  const { darkMode, toggleDarkMode } = useDarkMode(true);
+  const { darkMode, toggleDarkMode, isMounted } = useDarkMode(true);
+  const resolvedDarkMode = isMounted ? darkMode : false;
 
   const countMembers = useCountUp(4, 1000, true);
   const countGroup = useCountUp(1, 800, true);
@@ -41,10 +42,10 @@ export default function Home() {
   return (
     <div
       className="min-h-screen relative overflow-hidden"
-      style={{ color: darkMode ? undefined : lightTextColor }}
+      style={{ color: resolvedDarkMode ? undefined : lightTextColor }}
     >
       {/* BACKGROUND */}
-      {darkMode ? (
+      {resolvedDarkMode ? (
         <div className="fixed inset-0 -z-20 bg-gradient-to-br from-[#120426] via-[#1d0a3a] to-[#06000b]" />
       ) : (
         <div
@@ -59,8 +60,8 @@ export default function Home() {
         <div
           className="absolute w-[800px] h-[800px] blur-[200px]"
           style={{
-            background: darkMode ? '#b46bff' : '#c4b5fd',
-            opacity: darkMode ? 0.16 : 0.15,
+            background: resolvedDarkMode ? '#b46bff' : '#c4b5fd',
+            opacity: resolvedDarkMode ? 0.16 : 0.15,
           }}
         />
       </div>
@@ -72,7 +73,7 @@ export default function Home() {
       </div>
 
       {/* NAVBAR */}
-      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+      <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} isMounted={isMounted} />
 
       {/* MAIN */}
       <main className="flex items-center justify-center min-h-[80vh] px-4 relative z-10">
@@ -84,35 +85,39 @@ export default function Home() {
         >
           <h1
             className="text-4xl md:text-6xl font-bold leading-tight"
-            style={{ color: darkMode ? '#ffffff' : lightTextColor }}
+            style={{ color: resolvedDarkMode ? '#ffffff' : lightTextColor }}
           >
             Welcome to Our Team <br />
-            <span style={{ color: darkMode ? '#c084fc' : lightPurpleAccent }}>Website</span>
+            <span style={{ color: resolvedDarkMode ? '#c084fc' : lightPurpleAccent }}>Website</span>
           </h1>
-          <p className="mt-4" style={{ color: darkMode ? '#d1d5db' : lightSecondaryColor }}>
+          <p className="mt-4" style={{ color: resolvedDarkMode ? '#d1d5db' : lightSecondaryColor }}>
             Klik tombol untuk melihat anggota kelompok
           </p>
           <div className="mt-8 flex justify-center gap-12">
             <div className="text-center">
-              <div className="text-3xl font-bold" style={{ color: darkMode ? '#c084fc' : '#6d28d9' }}>
+              <div className="text-3xl font-bold" style={{ color: resolvedDarkMode ? '#c084fc' : '#6d28d9' }}>
                 {countMembers}
               </div>
-              <div className="text-xs mt-0.5" style={{ color: darkMode ? '#9ca3af' : lightSecondaryColor }}>
+              <div className="text-xs mt-0.5" style={{ color: resolvedDarkMode ? '#9ca3af' : lightSecondaryColor }}>
                 People
               </div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold" style={{ color: darkMode ? '#c084fc' : '#6d28d9' }}>
+              <div className="text-3xl font-bold" style={{ color: resolvedDarkMode ? '#c084fc' : '#6d28d9' }}>
                 {countGroup}
               </div>
-              <div className="text-xs mt-0.5" style={{ color: darkMode ? '#9ca3af' : '#6b21a8' }}>
+              <div className="text-xs mt-0.5" style={{ color: resolvedDarkMode ? '#9ca3af' : '#6b21a8' }}>
                 Vision
               </div>
             </div>
           </div>
           <Link
             href="/about"
-            className="mt-8 inline-flex px-8 py-3 rounded-full bg-purple-600 hover:bg-purple-700 transition shadow-lg hover:scale-110 hover:shadow-purple-500/40"
+            className={`mt-8 inline-flex px-8 py-3 rounded-full transition shadow-lg hover:scale-110 ${
+              resolvedDarkMode
+                ? 'bg-purple-600 hover:bg-purple-700 text-white hover:shadow-purple-500/40'
+                : 'bg-white/85 text-[#4a2a6e] border border-purple-200 hover:bg-white hover:shadow-purple-300/40'
+            }`}
           >
             Kelompok 4 →
           </Link>
@@ -122,8 +127,8 @@ export default function Home() {
       <footer
         className="text-center py-6 border-t relative z-10"
         style={{
-          color: darkMode ? '#9ca3af' : '#5b21b6',
-          borderColor: darkMode ? 'rgba(255,255,255,0.1)' : '#c4b5fd',
+          color: resolvedDarkMode ? '#9ca3af' : '#5b21b6',
+          borderColor: resolvedDarkMode ? 'rgba(255,255,255,0.1)' : '#c4b5fd',
         }}
       >
           RSI Praktikum - Kelompok4
