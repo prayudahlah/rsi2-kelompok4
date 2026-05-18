@@ -6,7 +6,6 @@ import { Eye, EyeOff, Mail, User, Phone } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { useDarkMode } from "@/components/useDarkMode"
 import { register } from "@/lib/api/auth"
-import { setToken } from "@/lib/auth/token"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -60,16 +59,15 @@ export default function RegisterPage() {
                 whatsapp,
                 role_name: "user",
             })
-
-            const token = data.access_token
-
-            if (!token) {
-                setMessage("Token tidak ditemukan dari backend.")
-                return
+            // after successful register, store tokens and redirect (legacy flow)
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', data.access_token)
+                if ((data as any).refresh_token) localStorage.setItem('refreshToken', (data as any).refresh_token)
+                localStorage.setItem('accountId', String(data.account_id))
+                localStorage.setItem('role', data.role)
+                localStorage.setItem('expiresAt', String(Date.now() + 15 * 60 * 1000))
             }
-
-            setToken(token)
-            router.push("/")
+            router.push('/')
         } catch (error) {
             console.error(error)
 

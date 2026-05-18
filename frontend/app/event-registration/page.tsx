@@ -6,7 +6,6 @@ import { Calendar } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useDarkMode } from '@/components/useDarkMode';
 import { listEvents, registerEvent, type EventRecord } from '@/lib/api/events';
-import { getToken } from '@/lib/auth/token';
 
 export default function UserEventsPage() {
   const [events, setEvents] = useState<EventRecord[]>([]);
@@ -21,7 +20,7 @@ export default function UserEventsPage() {
   const lightMutedColor = '#6d28d9';
 
   useEffect(() => {
-    const token = getToken();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) {
       router.push('/login');
       return;

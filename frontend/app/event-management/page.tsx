@@ -7,8 +7,6 @@ import EventForm from '@/components/events/EventForm';
 import EventsManagementPanel from '@/components/events/EventsManagementPanel';
 import { createEvent, deleteEvent, listEvents, updateEvent } from '@/lib/api/events';
 import type { EventRecord } from '@/lib/api/events';
-import { getMe } from '@/lib/api/auth';
-import { getToken } from '@/lib/auth/token';
 import { buildExportFilename, downloadFile, toCsv } from '@/components/events/exportUtils';
 
 type MessageState = {
@@ -45,21 +43,10 @@ export default function EventsPage() {
     };
 
     useEffect(() => {
-        void handleRefreshRole();
+        const r = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
+        setRole(r);
+        if (r === 'admin') void loadEvents();
     }, []);
-
-    const handleRefreshRole = async () => {
-        try {
-            const me = await getMe();
-            setRole(me.role);
-            if (me.role === 'admin') {
-                await loadEvents();
-            }
-        } catch (error) {
-            setRole(null);
-        } finally {
-        }
-    };
 
     const handleCreate = async (payload: Omit<EventRecord, 'id'>) => {
         setIsBusy(true);

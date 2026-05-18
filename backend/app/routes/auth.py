@@ -6,6 +6,7 @@ from app.database.schema.schema import Account
 from app.dto.auth import AccountLogin, AccountRegister, TokenResponse
 from app.controllers.auth import AuthController
 from app.utils.security.jwt import get_current_user
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -33,3 +34,13 @@ def get_me(current_user: Account = Depends(get_current_user)):
         "username": current_user.username,
         "role": current_user.role.name,
     }
+
+
+
+class RefreshBody(BaseModel):
+    refresh_token: str
+
+
+@router.post("/refresh", response_model=TokenResponse)
+def refresh(body: RefreshBody, controller: AuthController = Depends(get_controller)):
+    return controller.refresh(body.refresh_token)

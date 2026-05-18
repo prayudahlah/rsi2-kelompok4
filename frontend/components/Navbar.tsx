@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { House, LogOut, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
-import { clearToken, getToken } from '@/lib/auth/token';
-import { getMe } from '@/lib/api/auth';
+import { useRouter } from 'next/navigation';
 
 type NavbarLink = {
     href: string;
@@ -31,16 +30,19 @@ export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLink
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const resolvedDarkMode = isMounted ? darkMode : false;
 
+    const router = useRouter();
+
     const checkAuth = useCallback(() => {
-        const token = getToken();
-        setIsLogin(!!token);
-        if (!token) {
+        try {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+            const isLogged = !!token;
+            setIsLogin(isLogged);
+            const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
+            setIsAdmin(role === 'admin');
+        } catch (e) {
+            setIsLogin(false);
             setIsAdmin(false);
-            return;
         }
-        getMe()
-            .then((me) => setIsAdmin(me.role === 'admin'))
-            .catch(() => setIsAdmin(false));
     }, []);
 
     useEffect(() => {
@@ -58,12 +60,19 @@ export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLink
             const target = e.target as HTMLElement;
             if (target.closest('[data-logout]')) {
                 setIsLoggingOut(true);
-                clearToken();
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('expiresAt');
+                    localStorage.removeItem('accountId');
+                    localStorage.removeItem('role');
+                }
+                router.push('/login');
             }
         };
         document.addEventListener('click', handleLogout);
         return () => document.removeEventListener('click', handleLogout);
-    }, [setIsLoggingOut, clearToken]);
+    }, [setIsLoggingOut, router]);
 
     const visibleLinks = links.filter((link) => !link.requiresAdmin || isAdmin);
 

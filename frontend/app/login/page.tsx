@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Mail } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { useDarkMode } from "@/components/useDarkMode"
-import { login } from "@/lib/api/auth"
-import { setToken } from "@/lib/auth/token"
+// using legacy localStorage-based auth (no NextAuth)
 
 export default function LoginPage() {
     const router = useRouter()
@@ -35,16 +34,28 @@ export default function LoginPage() {
         try {
             setLoading(true)
 
-            const data = await login({ email, password })
-            const token = data.access_token
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            })
 
-            if (!token) {
-                setMessage("Token tidak ditemukan dari backend.")
+            if (!res.ok) {
+                const txt = await res.text()
+                setMessage('Email atau password salah.')
                 return
             }
 
-            setToken(token)
-            router.push("/")
+            const data = await res.json()
+            // store tokens like legacy flow
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('accessToken', data.access_token)
+                if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token)
+                localStorage.setItem('accountId', String(data.account_id))
+                localStorage.setItem('role', data.role)
+                localStorage.setItem('expiresAt', String(Date.now() + 15 * 60 * 1000))
+            }
+            router.push('/')
         } catch (error) {
             console.error(error)
 

@@ -9,10 +9,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   let authHeader: Record<string, string> = {};
   if (typeof window !== 'undefined') {
-    const { getToken } = await import('@/lib/auth/token');
-    const token = getToken();
-    if (token) {
-      authHeader = { Authorization: `Bearer ${token}` };
+    try {
+      // Fallback to previous localStorage-based auth if NextAuth is not present
+      const token = localStorage.getItem('accessToken');
+      if (token) authHeader = { Authorization: `Bearer ${token}` };
+    } catch (e) {
+      // ignore
     }
   }
 
@@ -25,10 +27,61 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     ...options,
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
-
   if (response.status === 401) {
-    const { clearToken } = await import('@/lib/auth/token');
-    clearToken();
+    // try to refresh using refresh_token stored in localStorage
+    if (typeof window !== 'undefined') {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const refreshed = await refreshRes.json();
+            localStorage.setItem('accessToken', refreshed.access_token);
+            if (refreshed.refresh_token) localStorage.setItem('refreshToken', refreshed.refresh_token);
+            localStorage.setItem('expiresAt', String(Date.now() + 15 * 60 * 1000));
+
+            // retry original request with new token
+            const newAuthHeader = { Authorization: `Bearer ${refreshed.access_token}` };
+            const retryRes = await fetch(`${API_BASE_URL}${path}`, {
+              headers: {
+                'Content-Type': 'application/json',
+                ...newAuthHeader,
+                ...(options.headers ?? {}),
+              },
+              ...options,
+              body: options.body ? JSON.stringify(options.body) : undefined,
+            });
+
+            if (!retryRes.ok) {
+              const msg = await retryRes.text();
+              throw new Error(msg || `Request failed (${retryRes.status})`);
+            }
+
+            if (retryRes.status === 204) return null as T;
+            const ct = retryRes.headers.get('content-type') ?? '';
+            if (ct.includes('application/json')) return retryRes.json() as Promise<T>;
+            return (await retryRes.text()) as T;
+          }
+        } catch (e) {
+          // fallthrough to clearing tokens
+        }
+      }
+    }
+
+    // failed to refresh -> clear stored tokens
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('expiresAt');
+      localStorage.removeItem('accountId');
+      localStorage.removeItem('role');
+    }
+
     const message = await response.text();
     throw new Error(message || 'Sesi telah berakhir. Silakan login kembali.');
   }
