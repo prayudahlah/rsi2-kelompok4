@@ -6,7 +6,8 @@ import { Eye, EyeOff, Mail } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { useDarkMode } from "@/components/useDarkMode"
 import { setToken } from "@/lib/auth/token"
-// using legacy localStorage-based auth (no NextAuth)
+import { useForm } from "react-hook-form"
+import { login } from "@/lib/api/auth"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -17,38 +18,29 @@ export default function LoginPage() {
     const lightSecondaryColor = "#4a2a6e"
     const lightAccent = "#8b5cf6"
 
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<{
+        email: string
+        password: string
+    }>()
+
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState("")
 
-    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    const handleLogin = async (dataForm: {
+        email: string
+        password: string
+    }) => {
         setMessage("")
-
-        if (!email || !password) {
-            setMessage("Email dan password wajib diisi.")
-            return
-        }
-
+        
         try {
             setLoading(true)
 
-<<<<<<< HEAD
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            })
-
-            if (!res.ok) {
-                const txt = await res.text()
-                setMessage('Email atau password salah.')
-                return
-            }
-
-            const data = await res.json()
+            const data = await login(dataForm)
             setToken(data.access_token)
 
             if (typeof window !== 'undefined') {
@@ -58,7 +50,7 @@ export default function LoginPage() {
             }
 
             if (data.role === "admin") {
-                router.push("/event-management")
+                router.push("/admin")
             } else {
                 router.push("/")
             }
@@ -79,8 +71,8 @@ export default function LoginPage() {
         } finally {
             setLoading(false)
         }
-        }
-        
+    }
+
     return (
         <main
             className="relative min-h-screen overflow-hidden"
@@ -147,7 +139,7 @@ export default function LoginPage() {
                                 }}
                             />
 
-                            <form onSubmit={handleLogin} autoComplete="off" className="space-y-3">
+                            <form onSubmit={handleSubmit(handleLogin)} autoComplete="off" className="space-y-3">
                                 <input
                                     type="text"
                                     name="username"
@@ -183,12 +175,10 @@ export default function LoginPage() {
 
                                         <input
                                             type="text"
-                                            name="login-email"
                                             autoComplete="new-password"
                                             required
                                             placeholder="Masukkan email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            {...register("email")}
                                             className="login-input w-full border-none bg-transparent text-sm outline-none"
                                             style={{ color: resolvedDarkMode ? "#ffffff" : lightTextColor }}
                                         />
@@ -212,12 +202,10 @@ export default function LoginPage() {
                                     >
                                         <input
                                             type={showPassword ? "text" : "password"}
-                                            name="login-password"
                                             autoComplete="new-password"
                                             required
                                             placeholder="Masukkan password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
+                                            {...register("password")}
                                             className="login-input w-full border-none bg-transparent text-sm outline-none"
                                             style={{ color: resolvedDarkMode ? "#ffffff" : lightTextColor }}
                                         />
