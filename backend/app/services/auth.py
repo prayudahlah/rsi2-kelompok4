@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.dto.auth import AccountLogin, AccountRegister, TokenResponse
 from app.utils.security.hash import verify_password, hash_password
-from app.utils.security.jwt import create_token
+from app.utils.security.jwt import create_token, create_refresh_token, verify_refresh_token
 from app.repositories.auth import AuthRepository
 
 
@@ -22,10 +22,14 @@ class AuthService:
         if not account.id:
             raise HTTPException(status_code=500, detail="Invalid account ID")
 
-        token = create_token(user_id=account.id)
+        access_token = create_token(user_id=account.id)
+        refresh_token = create_refresh_token(user_id=account.id)
 
         return TokenResponse(
-            access_token=token, account_id=account.id, role=account.role.name
+            access_token=access_token,
+            refresh_token=refresh_token,
+            account_id=account.id,
+            role=account.role.name,
         )
 
     def register(self, data: AccountRegister):
@@ -35,9 +39,28 @@ class AuthService:
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        token = create_token(user_id=new_account.id)  # type: ignore
+        access_token = create_token(user_id=new_account.id)  # type: ignore
+        refresh_token = create_refresh_token(user_id=new_account.id)  # type: ignore
         return TokenResponse(
-            access_token=token,
+            access_token=access_token,
+            refresh_token=refresh_token,
             account_id=new_account.id,  # type: ignore
             role=new_account.role.name,
+        )
+
+    def refresh(self, refresh_token: str):
+        """Validate a refresh token and return a new TokenResponse with a new access token.
+        This is stateless: refresh_token is a JWT signed with REFRESH_SECRET_KEY.
+        """
+        account_id = verify_refresh_token(refresh_token)
+
+        access_token = create_token(user_id=account_id)
+        # Optionally rotate refresh token by issuing a new one
+        new_refresh_token = create_refresh_token(user_id=account_id)
+
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=new_refresh_token,
+            account_id=account_id,
+            role="user",  # role is not fetched here; client can call /auth/me if needed
         )

@@ -13,3 +13,5 @@ class AuthController:
     def login(self, data: AccountLogin):
         return self.service.login(data)
 
+    def refresh(self, refresh_token: str):
+        return self.service.refresh(refresh_token)

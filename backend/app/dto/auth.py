@@ -35,6 +35,7 @@ class TokenResponse(SQLModel):
     token_type: str = "bearer"
     account_id: int
     role: str
+    refresh_token: str | None = None
 
     class Config:
         from_attribute = True
