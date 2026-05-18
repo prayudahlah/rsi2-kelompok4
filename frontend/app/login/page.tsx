@@ -35,6 +35,7 @@ export default function LoginPage() {
         try {
             setLoading(true)
 
+<<<<<<< HEAD
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -48,15 +49,19 @@ export default function LoginPage() {
             }
 
             const data = await res.json()
-            // store tokens like legacy flow
             setToken(data.access_token)
+
             if (typeof window !== 'undefined') {
-                if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token)
                 localStorage.setItem('accountId', String(data.account_id))
                 localStorage.setItem('role', data.role)
                 localStorage.setItem('expiresAt', String(Date.now() + 15 * 60 * 1000))
             }
-            router.push('/')
+
+            if (data.role === "admin") {
+                router.push("/event-management")
+            } else {
+                router.push("/")
+            }
         } catch (error) {
             console.error(error)
 
@@ -74,8 +79,8 @@ export default function LoginPage() {
         } finally {
             setLoading(false)
         }
-    }
-
+        }
+        
     return (
         <main
             className="relative min-h-screen overflow-hidden"
