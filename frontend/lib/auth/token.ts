@@ -1,22 +1,22 @@
-const TOKEN_KEY = 'accessToken';
+import Cookies from "js-cookie";
 
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+const TOKEN_KEY = "rsi-auth-token";
+
+export function getToken(): string | undefined {
+  return Cookies.get(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(TOKEN_KEY, token);
-  window.dispatchEvent(new Event('auth-changed'));
+  Cookies.set(TOKEN_KEY, token, {
+    expires: 1,
+    sameSite: "lax",
+  });
+
+  window.dispatchEvent(new Event("auth-changed"));
 }
 
 export function clearToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('expiresAt');
-  localStorage.removeItem('accountId');
-  localStorage.removeItem('role');
-  window.dispatchEvent(new Event('auth-changed'));
+  Cookies.remove(TOKEN_KEY);
+
+  window.dispatchEvent(new Event("auth-changed"));
 }
