@@ -6,12 +6,15 @@ import { Calendar } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useDarkMode } from '@/components/useDarkMode';
 import { listEvents, registerEvent, type EventRecord } from '@/lib/api/events';
+import { listRegistrations, type RegistrationRecord } from '@/lib/api/registrations';
 import { getToken } from '@/lib/auth/token';
 
 export default function UserEventsPage() {
   const [events, setEvents] = useState<EventRecord[]>([]);
+  const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [accountId, setAccountId] = useState<number | null>(null);
   const router = useRouter();
   const { darkMode, toggleDarkMode, isMounted } = useDarkMode(true);
   const resolvedDarkMode = isMounted ? darkMode : false;
@@ -26,17 +29,51 @@ export default function UserEventsPage() {
       router.push('/login');
       return;
     }
+    const storedAccountId = typeof window !== 'undefined' ? localStorage.getItem('accountId') : null;
+    setAccountId(storedAccountId ? Number(storedAccountId) : null);
     fetchEvents();
   }, [router]);
 
   const fetchEvents = async () => {
     try {
-      const data = await listEvents();
-      setEvents(data);
+      const [eventData, registrationData] = await Promise.all([
+        listEvents(),
+        listRegistrations(),
+      ]);
+      setEvents(eventData);
+      setRegistrations(registrationData);
     } catch (err: any) {
             setMessage({ type: 'error', text: 'Gagal memuat daftar event' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const registrationMap = registrations.reduce<Record<number, number>>((acc, item) => {
+    acc[item.event_id] = (acc[item.event_id] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const getEventStatus = (event: EventRecord) => {
+    const now = new Date();
+    const start = new Date(event.started_at);
+    const end = new Date(event.ended_at);
+
+    if (now < start) return 'akan-datang';
+    if (now > end) return 'sudah-tutup';
+    return 'sedang-berjalan';
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'akan-datang':
+        return 'Akan Datang';
+      case 'sedang-berjalan':
+        return 'Sedang Berjalan';
+      case 'sudah-tutup':
+        return 'Sudah Tutup';
+      default:
+        return 'Status';
     }
   };
 
@@ -153,9 +190,60 @@ export default function UserEventsPage() {
               </div>
             ) : (
               events.map((event, idx) => (
+                (() => {
+                  const registeredCount = registrationMap[event.id] ?? 0;
+                  const remainingSlots = event.quota - registeredCount;
+                  const status = getEventStatus(event);
+                  const isClosed = status === 'sudah-tutup';
+                  const isFull = remainingSlots <= 0;
+                  const isRegistered = accountId
+                    ? registrations.some(
+                        (registration) =>
+                          registration.event_id === event.id && registration.user_id === accountId
+                      )
+                    : false;
+                  const disableRegister = isRegistered || isClosed || isFull;
+
+                  const statusStyle = (() => {
+                    if (status === 'sedang-berjalan') {
+                      return {
+                        background: resolvedDarkMode ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.12)',
+                        color: resolvedDarkMode ? '#bbf7d0' : '#166534',
+                        border: resolvedDarkMode
+                          ? '1px solid rgba(16,185,129,0.35)'
+                          : '1px solid rgba(16,185,129,0.25)',
+                      };
+                    }
+                    if (status === 'sudah-tutup') {
+                      return {
+                        background: resolvedDarkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.12)',
+                        color: resolvedDarkMode ? '#fecaca' : '#991b1b',
+                        border: resolvedDarkMode
+                          ? '1px solid rgba(248,113,113,0.35)'
+                          : '1px solid rgba(248,113,113,0.25)',
+                      };
+                    }
+                    return {
+                      background: resolvedDarkMode ? 'rgba(129,140,248,0.2)' : 'rgba(99,102,241,0.12)',
+                      color: resolvedDarkMode ? '#c7d2fe' : '#3730a3',
+                      border: resolvedDarkMode
+                        ? '1px solid rgba(129,140,248,0.35)'
+                        : '1px solid rgba(99,102,241,0.25)',
+                    };
+                  })();
+
+                  const slotStyle = {
+                    background: resolvedDarkMode ? 'rgba(0,0,0,0.45)' : 'rgba(139,92,246,0.1)',
+                    color: resolvedDarkMode ? 'rgba(199,210,254,0.7)' : lightMutedColor,
+                    border: resolvedDarkMode
+                      ? '1px solid rgba(99,102,241,0.2)'
+                      : '1px solid rgba(139,92,246,0.25)',
+                  };
+
+                  return (
                 <div
                   key={event.id}
-                  className="group relative rounded-2xl p-5 transition-all duration-300 hover:-translate-y-2"
+                  className="group relative rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2"
                   style={{
                     background: resolvedDarkMode ? 'rgba(20,16,55,0.7)' : '#ffffff',
                     backdropFilter: resolvedDarkMode ? 'blur(12px)' : undefined,
@@ -184,20 +272,6 @@ export default function UserEventsPage() {
                       : '0 4px 20px rgba(139,92,246,0.1)';
                   }}
                 >
-                  {/* Badge kuota */}
-                  <div
-                    className="absolute top-3 right-3 text-xs px-2 py-1 rounded-full"
-                    style={{
-                      background: resolvedDarkMode ? 'rgba(0,0,0,0.45)' : 'rgba(139,92,246,0.1)',
-                      color: resolvedDarkMode ? 'rgba(199,210,254,0.7)' : lightMutedColor,
-                      border: resolvedDarkMode
-                        ? '1px solid rgba(99,102,241,0.2)'
-                        : '1px solid rgba(139,92,246,0.25)',
-                    }}
-                  >
-                    Kuota: {event.quota}
-                  </div>
-
                   <div className="flex flex-col h-full">
                     <h2
                       className="text-xl font-semibold"
@@ -206,15 +280,26 @@ export default function UserEventsPage() {
                       {event.name}
                     </h2>
 
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                      <span className="px-2 py-1 rounded-full" style={statusStyle}>
+                        {getStatusLabel(status)}
+                      </span>
+                      <span className="px-2 py-1 rounded-full" style={slotStyle}>
+                        {remainingSlots > 0
+                          ? `Sisa ${remainingSlots} / Kuota ${event.quota}`
+                          : `Penuh / Kuota ${event.quota}`}
+                      </span>
+                    </div>
+
                     <p
-                      className="text-sm mt-2 line-clamp-2 flex-1"
+                      className="text-sm mt-3 line-clamp-2 flex-1"
                       style={{ color: resolvedDarkMode ? 'rgba(165,180,252,0.6)' : lightSecondaryColor }}
                     >
                       {event.description}
                     </p>
 
                     <div
-                      className="mt-4 pt-3 text-xs flex items-center gap-4"
+                      className="mt-4 pt-3 text-xs flex flex-col gap-2"
                       style={{
                         borderTop: resolvedDarkMode
                           ? '1px solid rgba(99,102,241,0.15)'
@@ -234,28 +319,37 @@ export default function UserEventsPage() {
 
                     <button
                       onClick={() => handleRegister(event.id)}
-                      className="mt-4 w-full py-2 rounded-xl font-semibold text-white text-sm transition-all duration-200 active:scale-95"
+                      disabled={disableRegister}
+                      className="mt-4 w-full py-2 rounded-xl font-semibold text-white text-sm transition-all duration-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
                       style={{
-                        background: 'linear-gradient(90deg, #6d28d9, #4338ca)',
-                        boxShadow: resolvedDarkMode
-                          ? '0 4px 14px rgba(109,40,217,0.35)'
-                          : '0 4px 14px rgba(99,102,241,0.3)',
+                        background: disableRegister
+                          ? (resolvedDarkMode ? 'rgba(148,163,184,0.4)' : '#cbd5f5')
+                          : 'linear-gradient(90deg, #6d28d9, #4338ca)',
+                        boxShadow: disableRegister
+                          ? 'none'
+                          : resolvedDarkMode
+                              ? '0 4px 14px rgba(109,40,217,0.35)'
+                              : '0 4px 14px rgba(99,102,241,0.3)',
                       }}
                       onMouseEnter={e => {
+                        if (disableRegister) return;
                         (e.currentTarget as HTMLElement).style.background = 'linear-gradient(90deg, #7c3aed, #4f46e5)';
                         (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(124,58,237,0.45)';
                       }}
                       onMouseLeave={e => {
+                        if (disableRegister) return;
                         (e.currentTarget as HTMLElement).style.background = 'linear-gradient(90deg, #6d28d9, #4338ca)';
                         (e.currentTarget as HTMLElement).style.boxShadow = resolvedDarkMode
                           ? '0 4px 14px rgba(109,40,217,0.35)'
                           : '0 4px 14px rgba(99,102,241,0.3)';
                       }}
                     >
-                      Daftar Sekarang
+                      {isRegistered ? 'Sudah Terdaftar' : disableRegister ? 'Tidak Tersedia' : 'Daftar Sekarang'}
                     </button>
                   </div>
                 </div>
+                  );
+                })()
               ))
             )}
           </div>

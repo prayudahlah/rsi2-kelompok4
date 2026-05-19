@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { House, LogOut, Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { clearToken, getToken } from '@/lib/auth/token';
@@ -93,20 +93,10 @@ export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLink
                 <div className="flex items-center gap-5">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-lg font-semibold tracking-wide"
-                        style={{ color: resolvedDarkMode ? '#c084fc' : '#5b21b6' }}
+                        className="inline-flex items-center text-base font-extrabold tracking-[0.08em]"
+                        style={{ color: resolvedDarkMode ? '#e9d5ff' : '#4c1d95' }}
                     >
-                        <span
-                            className="grid place-items-center w-9 h-9 rounded-full border"
-                            style={{
-                                borderColor: resolvedDarkMode ? 'rgba(192,132,252,0.5)' : 'rgba(91,33,182,0.5)',
-                                background: resolvedDarkMode
-                                    ? 'linear-gradient(140deg, rgba(76,29,149,0.4), rgba(12,74,110,0.4))'
-                                    : 'linear-gradient(140deg, rgba(237,233,254,0.8), rgba(221,214,254,0.8))',
-                            }}
-                        >
-                            <House size={18} />
-                        </span>
+                        BOARDIFY
                     </Link>
 
                     {visibleLinks.map((link) => (
