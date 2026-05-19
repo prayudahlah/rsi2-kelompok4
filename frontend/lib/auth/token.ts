@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'rsi-auth-token';
+const TOKEN_KEY = 'accessToken';
 
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -8,10 +8,15 @@ export function getToken(): string | null {
 export function setToken(token: string): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(TOKEN_KEY, token);
+  window.dispatchEvent(new Event('auth-changed'));
 }
 
 export function clearToken(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('expiresAt');
+  localStorage.removeItem('accountId');
+  localStorage.removeItem('role');
   window.dispatchEvent(new Event('auth-changed'));
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Mail } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { useDarkMode } from "@/components/useDarkMode"
+import { setToken } from "@/lib/auth/token"
 // using legacy localStorage-based auth (no NextAuth)
 
 export default function LoginPage() {
@@ -48,8 +49,8 @@ export default function LoginPage() {
 
             const data = await res.json()
             // store tokens like legacy flow
+            setToken(data.access_token)
             if (typeof window !== 'undefined') {
-                localStorage.setItem('accessToken', data.access_token)
                 if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token)
                 localStorage.setItem('accountId', String(data.account_id))
                 localStorage.setItem('role', data.role)

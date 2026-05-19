@@ -2,6 +2,12 @@ type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
+async function getAuthToken() {
+  if (typeof window === 'undefined') return null;
+  const { getToken } = await import('@/lib/auth/token');
+  return getToken();
+}
+
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   if (!API_BASE_URL) {
     throw new Error('Missing NEXT_PUBLIC_API_URL');
@@ -9,13 +15,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   let authHeader: Record<string, string> = {};
   if (typeof window !== 'undefined') {
-    try {
-      // Fallback to previous localStorage-based auth if NextAuth is not present
-      const token = localStorage.getItem('accessToken');
-      if (token) authHeader = { Authorization: `Bearer ${token}` };
-    } catch (e) {
-      // ignore
-    }
+    const token = await getAuthToken();
+    if (token) authHeader = { Authorization: `Bearer ${token}` };
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -41,7 +42,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
           if (refreshRes.ok) {
             const refreshed = await refreshRes.json();
-            localStorage.setItem('accessToken', refreshed.access_token);
+            const { setToken } = await import('@/lib/auth/token');
+            setToken(refreshed.access_token);
             if (refreshed.refresh_token) localStorage.setItem('refreshToken', refreshed.refresh_token);
             localStorage.setItem('expiresAt', String(Date.now() + 15 * 60 * 1000));
 
@@ -75,11 +77,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
     // failed to refresh -> clear stored tokens
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('expiresAt');
-      localStorage.removeItem('accountId');
-      localStorage.removeItem('role');
+      const { clearToken } = await import('@/lib/auth/token');
+      clearToken();
     }
 
     const message = await response.text();

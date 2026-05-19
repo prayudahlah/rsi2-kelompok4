@@ -10,6 +10,7 @@ type EventFormProps = {
   isSubmitting?: boolean;
   errorMessage?: string;
   successMessage?: string;
+  variant?: 'card' | 'compact';
 };
 
 const inputBase =
@@ -21,6 +22,7 @@ export default function EventForm({
   isSubmitting = false,
   errorMessage,
   successMessage,
+  variant = 'card',
 }: EventFormProps) {
   const [values, setValues] = useState(() =>
     buildFormValues({
@@ -81,6 +83,97 @@ export default function EventForm({
     setValues(buildFormValues());
   };
 
+  const content = (
+    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold tracking-wide uppercase">Nama Event</span>
+        <input
+          value={values.name}
+          onChange={(event) => handleChange('name', event.target.value)}
+          className={inputBase}
+          placeholder="Workshop AI"
+          style={fieldStyle}
+        />
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold tracking-wide uppercase">Kuota</span>
+        <input
+          type="number"
+          min="1"
+          value={values.quota}
+          onChange={(event) => handleChange('quota', event.target.value)}
+          className={inputBase}
+          placeholder="100"
+          style={fieldStyle}
+        />
+      </label>
+
+      <label className="flex flex-col gap-2 md:col-span-2">
+        <span className="text-xs font-semibold tracking-wide uppercase">Deskripsi</span>
+        <textarea
+          value={values.description}
+          onChange={(event) => handleChange('description', event.target.value)}
+          className={`${inputBase} min-h-[110px] resize-none`}
+          placeholder="Rangkaian acara, fokus pembahasan, dan benefit peserta."
+          style={fieldStyle}
+        />
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold tracking-wide uppercase">Mulai</span>
+        <input
+          type="datetime-local"
+          value={values.startedAt}
+          onChange={(event) => handleChange('startedAt', event.target.value)}
+          className={inputBase}
+          style={fieldStyle}
+        />
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span className="text-xs font-semibold tracking-wide uppercase">Selesai</span>
+        <input
+          type="datetime-local"
+          value={values.endedAt}
+          onChange={(event) => handleChange('endedAt', event.target.value)}
+          className={inputBase}
+          style={fieldStyle}
+        />
+      </label>
+
+      <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="text-sm">
+          {(localError || errorMessage) && (
+            <p className="text-rose-400 font-medium">{localError || errorMessage}</p>
+          )}
+          {!localError && successMessage && (
+            <p className="text-emerald-400 font-medium">{successMessage}</p>
+          )}
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-6 py-2.5 rounded-full text-sm font-semibold transition disabled:opacity-60"
+          style={{
+            background: darkMode
+              ? 'linear-gradient(90deg,#7c3aed,#0ea5e9)'
+              : 'linear-gradient(90deg,#6d28d9,#9333ea)',
+            color: '#ffffff',
+            boxShadow: darkMode
+              ? '0 10px 30px rgba(124,58,237,0.35)'
+              : '0 10px 30px rgba(124,58,237,0.25)',
+          }}
+        >
+          {isSubmitting ? 'Menyimpan...' : 'Simpan Event'}
+        </button>
+      </div>
+    </form>
+  );
+
+  if (variant === 'compact') {
+    return content;
+  }
   return (
     <section
       className="rounded-3xl border p-6 md:p-8 backdrop-blur-xl"
@@ -110,91 +203,7 @@ export default function EventForm({
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="text-xs font-semibold tracking-wide uppercase">Nama Event</span>
-          <input
-            value={values.name}
-            onChange={(event) => handleChange('name', event.target.value)}
-            className={inputBase}
-            placeholder="Workshop AI"
-            style={fieldStyle}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-xs font-semibold tracking-wide uppercase">Kuota</span>
-          <input
-            type="number"
-            min="1"
-            value={values.quota}
-            onChange={(event) => handleChange('quota', event.target.value)}
-            className={inputBase}
-            placeholder="100"
-            style={fieldStyle}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2 md:col-span-2">
-          <span className="text-xs font-semibold tracking-wide uppercase">Deskripsi</span>
-          <textarea
-            value={values.description}
-            onChange={(event) => handleChange('description', event.target.value)}
-            className={`${inputBase} min-h-[110px] resize-none`}
-            placeholder="Rangkaian acara, fokus pembahasan, dan benefit peserta."
-            style={fieldStyle}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-xs font-semibold tracking-wide uppercase">Mulai</span>
-          <input
-            type="datetime-local"
-            value={values.startedAt}
-            onChange={(event) => handleChange('startedAt', event.target.value)}
-            className={inputBase}
-            style={fieldStyle}
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-xs font-semibold tracking-wide uppercase">Selesai</span>
-          <input
-            type="datetime-local"
-            value={values.endedAt}
-            onChange={(event) => handleChange('endedAt', event.target.value)}
-            className={inputBase}
-            style={fieldStyle}
-          />
-        </label>
-
-        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="text-sm">
-            {(localError || errorMessage) && (
-              <p className="text-rose-400 font-medium">{localError || errorMessage}</p>
-            )}
-            {!localError && successMessage && (
-              <p className="text-emerald-400 font-medium">{successMessage}</p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2.5 rounded-full text-sm font-semibold transition disabled:opacity-60"
-            style={{
-              background: darkMode
-                ? 'linear-gradient(90deg,#7c3aed,#0ea5e9)'
-                : 'linear-gradient(90deg,#6d28d9,#9333ea)',
-              color: '#ffffff',
-              boxShadow: darkMode
-                ? '0 10px 30px rgba(124,58,237,0.35)'
-                : '0 10px 30px rgba(124,58,237,0.25)',
-            }}
-          >
-            {isSubmitting ? 'Menyimpan...' : 'Simpan Event'}
-          </button>
-        </div>
-      </form>
+      {content}
     </section>
   );
 }

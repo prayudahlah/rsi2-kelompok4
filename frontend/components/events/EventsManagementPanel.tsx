@@ -1,6 +1,6 @@
 'use client';
 
-import { FileJson, FileSpreadsheet } from 'lucide-react';
+import { FileJson, FileSpreadsheet, Search } from 'lucide-react';
 import EventTable from '@/components/events/EventTable';
 import type { EventRecord } from '@/lib/api/events';
 
@@ -14,6 +14,9 @@ type EventsManagementPanelProps = {
     darkMode: boolean;
     isBusy: boolean;
     errorMessage?: string;
+    searchQuery: string;
+    onSearchChange: (value: string) => void;
+    onAddEvent: () => void;
     onUpdate: (id: number, payload: Partial<EventRecord>) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
     onExport: (format: 'json' | 'csv') => void;
@@ -31,6 +34,9 @@ export default function EventsManagementPanel({
     darkMode,
     isBusy,
     errorMessage,
+    searchQuery,
+    onSearchChange,
+    onAddEvent,
     onUpdate,
     onDelete,
     onExport,
@@ -55,6 +61,17 @@ export default function EventsManagementPanel({
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
+                        onClick={onAddEvent}
+                        className="rounded-full px-4 py-2 text-xs font-semibold"
+                        style={{
+                            background: darkMode ? 'linear-gradient(90deg,#7c3aed,#0ea5e9)' : 'linear-gradient(90deg,#6d28d9,#9333ea)',
+                            color: '#ffffff',
+                        }}
+                    >
+                        Tambah Event
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => onExport('json')}
                         title="Export JSON"
                         className="w-9 h-9 rounded-full grid place-items-center"
@@ -77,6 +94,29 @@ export default function EventsManagementPanel({
                     >
                         <FileSpreadsheet size={16} />
                     </button>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <label className="block text-xs font-semibold uppercase tracking-wide" style={{ color: darkMode ? '#e9d5ff' : '#4c1d95' }}>
+                    Search Event
+                </label>
+                <div
+                    className="mt-2 flex items-center gap-2 rounded-2xl border px-4 py-2.5 shadow-sm"
+                    style={{
+                        borderColor: darkMode ? 'rgba(255,255,255,0.12)' : '#e5e7eb',
+                        background: '#ffffff',
+                    }}
+                >
+                    <Search size={16} style={{ color: '#6b7280' }} />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(event) => onSearchChange(event.target.value)}
+                        placeholder="Cari berdasarkan nama atau deskripsi"
+                        className="w-full bg-transparent text-sm outline-none"
+                        style={{ color: '#111827' }}
+                    />
                 </div>
             </div>
 

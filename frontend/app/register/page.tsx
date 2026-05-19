@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, User, Phone } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { useDarkMode } from "@/components/useDarkMode"
 import { register } from "@/lib/api/auth"
+import { setToken } from "@/lib/auth/token"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -60,8 +61,8 @@ export default function RegisterPage() {
                 role_name: "user",
             })
             // after successful register, store tokens and redirect (legacy flow)
+            setToken(data.access_token)
             if (typeof window !== 'undefined') {
-                localStorage.setItem('accessToken', data.access_token)
                 if ((data as any).refresh_token) localStorage.setItem('refreshToken', (data as any).refresh_token)
                 localStorage.setItem('accountId', String(data.account_id))
                 localStorage.setItem('role', data.role)

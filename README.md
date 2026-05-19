@@ -65,6 +65,6 @@ docker compose -f compose.prod.yaml up -d --build
 | `/` | Home |
 | `/login` | Login |
 | `/register` | Register |
-| `/event-management` | Kelola event (admin) |
+| `/admin` | Kelola event (admin) |
 | `/event-registration` | Pendaftaran events |
 | `/about` | About page |

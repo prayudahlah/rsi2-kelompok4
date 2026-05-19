@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { House, LogOut, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { clearToken, getToken } from '@/lib/auth/token';
+import { getMe } from '@/lib/api/auth';
 
 type NavbarLink = {
     href: string;
@@ -21,7 +23,7 @@ type NavbarProps = {
 const defaultLinks: NavbarLink[] = [
     { href: '/about', label: 'Anggota' },
     { href: '/event-registration', label: 'Daftar Event' },
-    { href: '/event-management', label: 'Management Events', requiresAdmin: true },
+    { href: '/admin', label: 'Admin Panel', requiresAdmin: true },
 ];
 
 export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLinks, isMounted = true }: NavbarProps) {
@@ -34,11 +36,17 @@ export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLink
 
     const checkAuth = useCallback(() => {
         try {
-            const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+            const token = getToken();
             const isLogged = !!token;
             setIsLogin(isLogged);
-            const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null;
-            setIsAdmin(role === 'admin');
+            if (!token) {
+                setIsAdmin(false);
+                return;
+            }
+
+            getMe()
+                .then((me) => setIsAdmin(me.role?.toLowerCase() === 'admin'))
+                .catch(() => setIsAdmin(false));
         } catch (e) {
             setIsLogin(false);
             setIsAdmin(false);
@@ -61,11 +69,7 @@ export default function Navbar({ darkMode, onToggleDarkMode, links = defaultLink
             if (target.closest('[data-logout]')) {
                 setIsLoggingOut(true);
                 if (typeof window !== 'undefined') {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    localStorage.removeItem('expiresAt');
-                    localStorage.removeItem('accountId');
-                    localStorage.removeItem('role');
+                    clearToken();
                 }
                 router.push('/login');
             }
